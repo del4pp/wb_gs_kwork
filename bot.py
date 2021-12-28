@@ -56,6 +56,8 @@ def controller():
             procent_diff = float(price_now) / float(old_price)
         else:
             procent_diff = 1
+
+        if old_price == 'None' and int(price_now) > 0:
             msg_tg = 'Товар появился в наличии \n\n {0}'.format(page)
             telegram.send_message_new_price('-1001662783286', msg_tg)
 
