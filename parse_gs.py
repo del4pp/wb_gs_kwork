@@ -1,7 +1,11 @@
+from datetime import time
 from urllib.request import Request, urlopen
 import db
 from bs4 import BeautifulSoup
+import telegram
 import unidecode
+
+notification_date_list = []
 
 header = {}
 
@@ -52,17 +56,32 @@ def controller():
             procent_diff = float(price_now) / float(old_price)
         else:
             procent_diff = 1
+            msg_tg = 'Товар появился в наличии \n\n {0}'.format(page)
+            telegram.send_message_new_price('-1001662783286', msg_tg)
 
         print(procent_diff)
 
         if float(procent_diff) < 0.7 or float(procent_diff) > 1.3:
-            import telegram
             tg_message = 'Цена товара \n\n {0} \n\nизменилась более чем на 30%\nСтарая: {1}\nНовая: {2}.\n\n'.format(
                 page, old_price, price_now
             )
-            telegram.send_message_new_price('-1001662783286', tg_message)            
+            telegram.send_message_new_price('-1001662783286', tg_message)
+        
 
         db.update_price(page, price_now)
+        from datetime import datetime
+        now_time = datetime.now().time().hour
+        date_now = datetime.now().date()
+
+        if now_time == 10:
+            if date_now not in notification_date_list:
+                telegram.send_message_new_price('-1001662783286', 'Отчет по работе бота. Все работает в штатном режиме')
+            notification_date_list.append(date_now)
+
 
 while True:
-    controller()
+    try:
+        controller()
+    except Exception as e:
+        telegram.send_message_new_price('-1001662783286', str(e))
+        break
