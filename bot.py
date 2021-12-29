@@ -47,21 +47,21 @@ def controller():
         price_now = unidecode.unidecode(str(parse_wb(page)).strip())
         old_price = db.get_old_price(page)
 
-        print(price_now)
+        #print(price_now)
 
         if ' ' in str(price_now):
                 price_now = str(price_now).replace(' ',  '')
 
-        if old_price != 'None':
+        if old_price != 'None' and old_price != None:
             procent_diff = float(price_now) / float(old_price)
         else:
             procent_diff = 1
 
-        if old_price == 'None' and price_now != 'None':
+        if old_price == 'None' and price_now != 'None' and old_price != None and price_now != None:
             msg_tg = 'Товар появился в наличии \n\n {0}'.format(page)
             telegram.send_message_new_price('-1001662783286', msg_tg)
 
-        print(procent_diff)
+        #print(procent_diff)
 
         if float(procent_diff) < 0.7 or float(procent_diff) > 1.3:
             tg_message = 'Цена товара \n\n {0} \n\nизменилась более чем на 30%\nСтарая: {1}\nНовая: {2}.\n\n'.format(
@@ -86,4 +86,5 @@ while True:
         controller()
     except Exception as e:
         telegram.send_message_new_price('-1001662783286', str(e))
-        break
+        import time
+        time.sleep(60)
